@@ -4,12 +4,13 @@
 
 ROS Noetic and Ubuntu 20.04 is being used for this.
 
-Install the following Turtlebot3 packages:
+Install the following Turtlebot3 packages and dependencies:
 
 ```
 sudo apt install ros-noetic-dynamixel-sdk
 sudo apt install ros-noetic-turtlebot3-msgs
 sudo apt install ros-noetic-turtlebot3
+sudo apt-get install ros-noetic-navigation
 ```
 
 ## Build instructions
