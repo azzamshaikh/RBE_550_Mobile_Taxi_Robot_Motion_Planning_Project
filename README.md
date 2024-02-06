@@ -1,4 +1,4 @@
-# RBE_550_Mobile_Taxi_Robot_Motion_Planning_Project
+# RBE 550: Mobile Taxi Robot Motion Planning Project
 
 ## Dependencies
 
