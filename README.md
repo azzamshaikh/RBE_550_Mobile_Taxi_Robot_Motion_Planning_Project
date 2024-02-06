@@ -3,12 +3,12 @@
 ## Build instructions
 
 ### Pull repo
-
-`cd ~`
-`git clone https://github.com/azzamshaikh/RBE_550_Mobile_Taxi_Robot_Motion_Planning_Project.git catkin_ws`
-`cd catkin_ws`
-`catkin_make`
-
+```
+cd ~
+git clone https://github.com/azzamshaikh/RBE_550_Mobile_Taxi_Robot_Motion_Planning_Project.git catkin_ws
+cd catkin_ws
+catkin_make
+```
 ### Source workspace
 
 `source devel/setup.bash`
