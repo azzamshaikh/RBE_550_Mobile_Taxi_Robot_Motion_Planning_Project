@@ -217,7 +217,36 @@
         <pose frame=''>-0.276098 -9.481944 0.023266 0 0 0</pose>
 	</model>
 
-    	
+	<model name="warehousebot1">
+	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
+		   <start_x>1.8</start_x>
+		   <start_y>9.0</start_y>
+		   <start_z>0</start_z>
+		   <end_x>1.8</end_x>
+		   <end_y>-9</end_y>
+		   <end_z>0</end_z>
+		   <time>45</time>
+	   </plugin>
+	   <include> 
+	      <uri>model://bot</uri>
+	   </include>
+   	</model>
+   	
+	<model name="warehousebot2">
+	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
+		   <start_x>-3.75</start_x>
+		   <start_y>-9.0</start_y>
+		   <start_z>0</start_z>
+		   <end_x>-3.75</end_x>
+		   <end_y>9</end_y>
+		   <end_z>0</end_z>
+		   <time>45</time>
+	   </plugin>
+	   <include> 
+	      <uri>model://bot</uri>
+	   </include>
+   	</model>
+   	
     <light name="Warehouse_CeilingLight_003" type="point">
       <pose frame="">0 0 9 0 0 0</pose>
       <diffuse>0.5 0.5 0.5 1</diffuse>
