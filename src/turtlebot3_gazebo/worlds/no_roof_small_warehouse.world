@@ -218,10 +218,10 @@
 	</model>
 	
 	<model name="warehousebot1">
-	  <include> 
-	      <uri>model://bot</uri>
-	  </include>	   
-	  <plugin name="movement_plugin" filename="libmovement_plugin.so">
+	   <include> 
+	       <uri>model://bot</uri>
+	   </include>	   
+	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
 		   <start_x>1.8</start_x>
 		   <start_y>9.0</start_y>
 		   <start_z>0</start_z>
