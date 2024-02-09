@@ -23,6 +23,7 @@ namespace gazebo {
                 this->end_x = 1;
                 this->end_y = 1;
                 this->end_z = 0;
+                this->yaw = 0;
                 this->time = 30;
 
                 if (_sdf->HasElement("start_x")) // check if element existence 
@@ -61,38 +62,46 @@ namespace gazebo {
                    
                 }
 
+                if (_sdf->HasElement("yaw")) // check if element existence 
+                {
+                    this->yaw = _sdf->Get<double>("yaw");  // use _sdf pointer & Get to find value in <model_vel>
+                   
+                }
+
                 if (_sdf->HasElement("time")) // check if element existence 
                 {
                     this->time = _sdf->Get<double>("time");  // use _sdf pointer & Get to find value in <model_vel>
                    
                 }
 
+
                 std::cout << "start = " << this->start_x << " " << this->start_y << " " << this->start_z << std::endl;
                 std::cout << "end = " << this->end_x << " " << this->end_y << " " << this->end_z << std::endl;
+                std::cout << "time =" << this->yaw << std::endl;
                 std::cout << "time =" << this->time << std::endl;
 
 
                 gazebo::common::PoseAnimationPtr anim(
                     
-                    new gazebo::common::PoseAnimation("robot_movement",60.0,true));
+                    new gazebo::common::PoseAnimation("robot_movement",this->time*2,true));
 
                 gazebo::common::PoseKeyFrame *key;
 
                 // starting location
                 key = anim->CreateKeyFrame(0);
                 key->Translation(ignition::math::Vector3d(this->start_x,this->start_y,this->start_z));
-                key->Rotation(ignition::math::Quaterniond(0,0,0));
+                key->Rotation(ignition::math::Quaterniond(0,0,this->yaw));
 
 
                 // set waypoint location after x seconds
                 key = anim->CreateKeyFrame(this->time);
                 key->Translation(ignition::math::Vector3d(this->end_x, this->end_y, this->end_z));
-                key->Rotation(ignition::math::Quaterniond(0,0,0));
+                key->Rotation(ignition::math::Quaterniond(0,0,this->yaw));
 
                 // return to start after 2x seconds
                 key = anim->CreateKeyFrame(this->time * 2);
                 key->Translation(ignition::math::Vector3d(this->start_x,this->start_y,this->start_z));
-                key->Rotation(ignition::math::Quaterniond(0,0,0));
+                key->Rotation(ignition::math::Quaterniond(0,0,this->yaw));
 
                 _model->SetAnimation(anim);
             }
@@ -108,6 +117,7 @@ namespace gazebo {
             double end_x;
             double end_y;
             double end_z;
+            double yaw;
             double time;
     };
 
