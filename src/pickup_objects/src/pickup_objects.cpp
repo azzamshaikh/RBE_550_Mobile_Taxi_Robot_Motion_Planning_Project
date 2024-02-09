@@ -4,6 +4,8 @@
 #include <std_msgs/Bool.h>
 #include <vector>
 #include <array>
+#include <algorithm>
+#include <random>
 
 // Define global pickup and dropoff variables
 // float siteA[3] = {0, 3.5, 1.0};
@@ -31,6 +33,7 @@ class TaxiService{
     //float sites[5] = {siteA,siteB,siteC,siteD,siteE};
 
     std::vector<std::array<float,3>> testsites;
+    std::vector<std::array<float,3>> pickUpSites;
 
 
 
@@ -49,6 +52,9 @@ class TaxiService{
 
     //actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
+    unsigned seed = 0;
+    
+
 
 
   public:
@@ -56,6 +62,13 @@ class TaxiService{
       goal_pub = nh->advertise<std_msgs::Bool>("reached_goal", 10);
       testsites.push_back({-0.5, 2.5, 1.0});
       testsites.push_back({6.0, 2, 1.0});
+
+      pickUpSites.push_back({-0.5, 2.5, 1.0});
+      pickUpSites.push_back({6.0, 2, 1.0});
+      pickUpSites.push_back({4.5, -4, 1.0});
+      pickUpSites.push_back({-0.75, -7, 1.0});
+      pickUpSites.push_back({-6, 2.5, 1.0});
+
     }
 
     bool runService(){
@@ -64,14 +77,18 @@ class TaxiService{
       MoveBaseClient ac("move_base", true);
 
       // Wait 5 sec for move_base action server to come up
-      while(!ac.waitForServer(ros::Duration(5.0))){
+      while(!ac.waitForServer(ros::Duration(5))){
         ROS_INFO("Waiting for the move_base action server to come up");
       }
       // set up the frame parameters
       goal.target_pose.header.frame_id = "map";
       goal.target_pose.header.stamp = ros::Time::now();
 
-      for (auto& site : testsites){
+      // shuffle test sites
+
+      std::shuffle(pickUpSites.begin(), pickUpSites.end(), std::default_random_engine(seed));
+
+      for (auto& site : pickUpSites){
         goal.target_pose.pose.position.x = site[0];
         goal.target_pose.pose.position.y = site[1];
         goal.target_pose.pose.orientation.w = site[2];
