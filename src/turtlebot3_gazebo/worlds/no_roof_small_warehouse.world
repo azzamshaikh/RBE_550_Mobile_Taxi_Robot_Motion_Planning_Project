@@ -216,8 +216,28 @@
         </include>
         <pose frame=''>-0.276098 -9.481944 0.023266 0 0 0</pose>
 	</model>
-	
+		
+      <model name='aws_robomaker_warehouse_PalletJackB_01_002'>
+        <include>
+            <uri>model://aws_robomaker_warehouse_PalletJackB_02</uri>
+        </include>
+        <plugin name="movement_plugin" filename="libmovement_plugin.so">
+		   <start_x>-1.9</start_x>
+		   <start_y>-5</start_y>
+		   <start_z>0.023266</start_z>
+		   <end_x>-1.9</end_x>
+		   <end_y>-3</end_y>
+		   <end_z>0.023266</end_z>
+		   <yaw>-1.57</yaw>
+		   <time>15</time>
+	   </plugin>
+        <!--<pose frame=''>0 5 0.023266 0 0 1.57</pose>-->
+	</model>
+
 	<model name="warehousebot1">
+	   <include> 
+	       <uri>model://bot</uri>
+	   </include>	   
 	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
 		   <start_x>1.8</start_x>
 		   <start_y>9.0</start_y>
@@ -227,12 +247,12 @@
 		   <end_z>0</end_z>
 		   <time>45</time>
 	   </plugin>
-	   <include> 
-	      <uri>model://bot</uri>
-	   </include>
    	</model>
    	
 	<model name="warehousebot2">
+	   <include> 
+	      <uri>model://bot</uri>
+	   </include>
 	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
 		   <start_x>-3.75</start_x>
 		   <start_y>-9.0</start_y>
@@ -242,12 +262,12 @@
 		   <end_z>0</end_z>
 		   <time>45</time>
 	   </plugin>
-	   <include> 
-	      <uri>model://bot</uri>
-	   </include>
    	</model>
    	
 	<model name="warehousebot3">
+	   <include> 
+	      <uri>model://bot</uri>
+	   </include>
 	   <plugin name="movement_plugin" filename="libmovement_plugin.so">
 		   <start_x>0</start_x>
 		   <start_y>0</start_y>
@@ -258,9 +278,6 @@
 		   <yaw>-0.785</yaw>
 		   <time>10</time>
 	   </plugin>
-	   <include> 
-	      <uri>model://bot</uri>
-	   </include>
    	</model>
 	   
 

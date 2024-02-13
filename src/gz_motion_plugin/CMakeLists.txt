@@ -130,6 +130,9 @@ list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 add_library(movement_plugin SHARED src/movement_plugin.cc)
 target_link_libraries(movement_plugin ${GAZEBO_LIBRARIES})
 
+add_library(movement_plugin_2 SHARED src/movement_plugin_2.cc)
+target_link_libraries(movement_plugin_2 ${GAZEBO_LIBRARIES})
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/gz_plug.cpp
