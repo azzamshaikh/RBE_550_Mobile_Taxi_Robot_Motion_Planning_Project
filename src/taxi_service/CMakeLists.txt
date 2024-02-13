@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pickup_objects)
+project(taxi_service)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -122,8 +122,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(pickup_objects src/pickup_objects.cpp)
-target_link_libraries(pickup_objects ${catkin_LIBRARIES})
+add_executable(taxi_service src/taxi_service.cpp)
+target_link_libraries(taxi_service ${catkin_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

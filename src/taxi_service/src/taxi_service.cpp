@@ -173,7 +173,7 @@ class TaxiService{
 
 int main(int argc, char** argv){
   // Initialize the pick_objects node
-  ros::init(argc, argv, "pickup_objects");
+  ros::init(argc, argv, "taxi_service");
 
   // Create a handle to the pick_objects node
   ros::NodeHandle n;

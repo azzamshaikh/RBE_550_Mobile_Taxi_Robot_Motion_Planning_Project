@@ -1,0 +1,5 @@
+<launch>
+
+   <node name="taxi_service" pkg="taxi_service" type="taxi_service" output="screen"/>
+
+</launch>
