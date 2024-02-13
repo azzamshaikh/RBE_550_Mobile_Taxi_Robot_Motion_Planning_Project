@@ -86,7 +86,7 @@ class TaxiService{
 
       // shuffle test sites
 
-      std::shuffle(pickUpSites.begin(), pickUpSites.end(), std::default_random_engine(seed));
+      std::shuffle(pickUpSites.begin(), pickUpSites.end(), std::default_random_engine());
 
       for (auto& site : pickUpSites){
         goal.target_pose.pose.position.x = site[0];
