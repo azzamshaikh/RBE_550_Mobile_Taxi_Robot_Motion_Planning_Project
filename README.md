@@ -30,7 +30,7 @@ source devel/setup.bash
 ### Declare the Turtlebot3 burger model. 
 
 ```
-export TURTLEBOT3_MODEL=burger
+export TURTLEBOT3_MODEL=waffle_pi
 ```
 
 This needs to be done for every terminal that is created. This can be added to the bottom of the ~/.bashrc file so you dont need to add it everytime. 
@@ -43,10 +43,18 @@ roslaunch turtlebot3_gazebo turtlebot3_warehouse.launch
 
 ### Open Navigation/RVIZ
 
-In a new terminal, source your workspace (and add the burger model command if it is not appended to your bashrc file). Then run the following command
+In a new terminal, source your workspace (and add the waffle_pi model command if it is not appended to your bashrc file). Then run the following command
 
 ```
 roslaunch turtlebot3_gazebo turtlebot3_warehouse_nav.launch
 ```
 
 In RVIZ, you can send a 2D Nav Goal command to make the robot move. 
+
+### Run Taxi Service
+
+In a new terminal, source your space (and add the waffle_pi model command if it is not appended to your bashrc file). Then run the following command
+
+```
+roslaunch taxi_service taxi_service.launch
+```

@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 namespace gazebo {
-    class MovementPlugin : public ModelPlugin {
+    class MovementPlugin2 : public ModelPlugin {
         
         public:
             void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
@@ -119,5 +119,5 @@ namespace gazebo {
     };
 
 // Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(MovementPlugin)
+GZ_REGISTER_MODEL_PLUGIN(MovementPlugin2)
 } 
