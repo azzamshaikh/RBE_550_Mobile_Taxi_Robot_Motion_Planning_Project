@@ -221,14 +221,15 @@
         <include>
             <uri>model://aws_robomaker_warehouse_PalletJackB_02</uri>
         </include>
-        <plugin name="movement_plugin_2" filename="libmovement_plugin_2.so">
-		   <!--<start_x>0</start_x>
-		   <start_y>5</start_y>
+        <plugin name="movement_plugin" filename="libmovement_plugin.so">
+		   <start_x>-1.9</start_x>
+		   <start_y>-5</start_y>
 		   <start_z>0.023266</start_z>
-		   <end_x>0</end_x>
-		   <end_y>7</end_y>
+		   <end_x>-1.9</end_x>
+		   <end_y>-3</end_y>
 		   <end_z>0.023266</end_z>
-		   <time>15</time>-->
+		   <yaw>-1.57</yaw>
+		   <time>15</time>
 	   </plugin>
         <!--<pose frame=''>0 5 0.023266 0 0 1.57</pose>-->
 	</model>
