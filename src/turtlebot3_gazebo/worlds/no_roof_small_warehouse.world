@@ -245,7 +245,7 @@
 		   <end_x>1.8</end_x>
 		   <end_y>-9</end_y>
 		   <end_z>0</end_z>
-		   <time>45</time>
+		   <time>80</time>
 	   </plugin>
    	</model>
    	
@@ -260,7 +260,7 @@
 		   <end_x>-3.75</end_x>
 		   <end_y>9</end_y>
 		   <end_z>0</end_z>
-		   <time>45</time>
+		   <time>80</time>
 	   </plugin>
    	</model>
    	
