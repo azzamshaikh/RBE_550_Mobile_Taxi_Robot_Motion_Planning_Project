@@ -1,0 +1,5 @@
+ <library path="lib/liba_star">
+  <class name="A_Star_Planner/AStar" type="A_Star_Planner::AStar" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>A* Global Planner Plugin.</description>
+  </class>
+ </library>
