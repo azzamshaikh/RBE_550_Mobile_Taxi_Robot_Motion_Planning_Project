@@ -264,6 +264,9 @@ namespace A_Star_Planner {
                     global_costmap[node_new.id_] >= global_costmap[current.id_])){
                         continue;
                     }
+
+                // node_new.euclidean_distance(goal);
+                node_new.h_ = math::euclidean_distance(node_new,goal);
                 
                 openList.push(node_new);
             }

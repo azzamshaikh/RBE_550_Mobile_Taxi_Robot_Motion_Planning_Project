@@ -34,4 +34,9 @@ class Node{
         int id_, parentID_;
 
 };
+
+namespace math {
+    double euclidean_distance(const Node& n1, const Node& n2);
+}
+
 #endif

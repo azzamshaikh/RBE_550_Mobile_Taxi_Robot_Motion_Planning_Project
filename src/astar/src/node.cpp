@@ -54,3 +54,11 @@ bool Node::compare_cost::operator()(const Node& n1, const Node& n2) const{
 bool Node::compare_coordinates::operator()(const Node& n1, const Node& n2) const{
      return (n1.x_ == n2.x_) && (n1.y_ == n2.y_);
 };
+
+namespace math{
+    
+    double euclidean_distance(const Node &n1, const Node &n2)
+    {
+        return std::hypot(n1.x_ - n2.x_, n1.y_ - n2.y_);
+    }
+}
