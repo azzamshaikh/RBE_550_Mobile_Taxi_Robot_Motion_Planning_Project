@@ -22,7 +22,8 @@ class TaxiService{
     // float sites[5] = {siteA,siteB,siteC,siteD,siteE};
     
     
-    float dropoff[3] = {-1.8, 6.8, 1};
+    // float dropoff[3] = {-1.8, 6.8, 1};
+    float dropoff[3] = {-0.5, 7, 1};
     bool arrived_at_pickup = true;
     bool arrived_at_dropoff = true;
 
@@ -43,11 +44,11 @@ class TaxiService{
     TaxiService(ros::NodeHandle *nh){
       goal_pub = nh->advertise<std_msgs::Bool>("reached_goal", 10);
       
-      struct Site siteA = { {-0.5, 2.5, 1.0}, "Site A"};
-      struct Site siteB = {{ 6.0, 2, 1.0}, "Site B"};
-      struct Site siteC = {{4.5, -4, 1.0}, "Site C"};
-      struct Site siteD = {{-0.75, -7, 1.0}, "Site D"};
-      struct Site siteE = {{-6, 2.5, 1.0}, "Site E"};
+      struct Site siteA = { {0, 2.5, 1.0}, "Site A"};   
+      struct Site siteB = {{ 5.8, 1.8, 0.0}, "Site B"};
+      struct Site siteC = {{3.6, -4.5, 1.0}, "Site C"};
+      struct Site siteD = {{0.5, -7, 1.0}, "Site D"};
+      struct Site siteE = {{-5.8, 2.3, 1.0}, "Site E"};
       
       testsites.push_back(siteA);
       testsites.push_back(siteB);

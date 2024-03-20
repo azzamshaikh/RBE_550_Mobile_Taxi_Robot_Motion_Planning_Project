@@ -9,15 +9,17 @@
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     
     
-    <!-- <param name="base_global_planner" value="astar_plugin/AStarPlanner" /> -->
-    
-    <!-- <rosparam file="$(find rrt_star_global_planner)/config/rrt_star_params.yaml" command="load" /> -->
+    <param name="base_global_planner" value="A_Star_Planner/AStar" />
 	
-    <rosparam file="$(find turtlebot3_gazebo)/params/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find turtlebot3_gazebo)/params/move_base_params.yaml" command="load" />
     <rosparam file="$(find turtlebot3_gazebo)/params/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find turtlebot3_gazebo)/params/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
+    	
+    <rosparam file="$(find turtlebot3_gazebo)/params/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find turtlebot3_gazebo)/params/global_costmap_plugins.yaml" command="load" />
+    <rosparam file="$(find turtlebot3_gazebo)/params/move_base_params.yaml" command="load" />
+
     <rosparam file="$(find turtlebot3_gazebo)/params/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find turtlebot3_gazebo)/params/local_costmap_plugins.yaml" command="load" />
     <rosparam file="$(find turtlebot3_gazebo)/params/dwa_local_planner_params_$(arg model).yaml" command="load" />
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>

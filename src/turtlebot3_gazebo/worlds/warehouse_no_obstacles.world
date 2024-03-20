@@ -217,6 +217,9 @@
         <pose frame=''>-0.276098 -9.481944 0.023266 0 0 0</pose>
 	</model>
 		
+		
+		
+	<!--
       <model name='aws_robomaker_warehouse_PalletJackB_01_002'>
         <include>
             <uri>model://aws_robomaker_warehouse_PalletJackB_02</uri>
@@ -229,11 +232,11 @@
 		   <end_y>-3</end_y>
 		   <end_z>0.023266</end_z>
 		   <yaw>-1.57</yaw>
-		   <time>30</time>
+		   <time>15</time>
 	   </plugin>
-        <!--<pose frame=''>0 5 0.023266 0 0 1.57</pose>-->
+        <pose frame=''>0 5 0.023266 0 0 1.57</pose>
 	</model>
-
+	
 	<model name="warehousebot1">
 	   <include> 
 	       <uri>model://bot</uri>
@@ -245,7 +248,7 @@
 		   <end_x>1.8</end_x>
 		   <end_y>-9</end_y>
 		   <end_z>0</end_z>
-		   <time>100</time>
+		   <time>80</time>
 	   </plugin>
    	</model>
    	
@@ -260,7 +263,7 @@
 		   <end_x>-3.75</end_x>
 		   <end_y>9</end_y>
 		   <end_z>0</end_z>
-		   <time>100</time>
+		   <time>80</time>
 	   </plugin>
    	</model>
    	
@@ -276,12 +279,12 @@
 		   <end_y>-1.7</end_y>
 		   <end_z>0</end_z>
 		   <yaw>-0.785</yaw>
-		   <time>30</time>
+		   <time>10</time>
 	   </plugin>
    	</model>
 	   
 
-    	
+    	--->
     <light name="Warehouse_CeilingLight_003" type="point">
       <pose frame="">0 0 9 0 0 0</pose>
       <diffuse>0.5 0.5 0.5 1</diffuse>

@@ -38,12 +38,26 @@ This needs to be done for every terminal that is created. This can be added to t
 ###  Open Gazebo environment
 
 ```
-roslaunch turtlebot3_gazebo turtlebot3_warehouse.launch
+roslaunch turtlebot3_gazebo warehouse.launch
 ```
 
 ### Open Navigation/RVIZ
 
-In a new terminal, source your workspace (and add the waffle_pi model command if it is not appended to your bashrc file). Then run the following command
+In a new terminal, source your workspace (and add the waffle_pi model command if it is not appended to your bashrc file). 
+
+To run the Dijkstra planner, run the following command:
+
+```
+roslaunch turtlebot3_gazebo dijkstra_navigation.launch
+```
+
+To run the A* planner, run the following command:
+
+```
+roslaunch turtlebot3_gazebo astar_navigation.launch
+```
+
+To run the default planner, run the following command:
 
 ```
 roslaunch turtlebot3_gazebo turtlebot3_warehouse_nav.launch
