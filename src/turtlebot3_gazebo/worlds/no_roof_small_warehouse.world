@@ -229,7 +229,7 @@
 		   <end_y>-3</end_y>
 		   <end_z>0.023266</end_z>
 		   <yaw>-1.57</yaw>
-		   <time>15</time>
+		   <time>30</time>
 	   </plugin>
         <!--<pose frame=''>0 5 0.023266 0 0 1.57</pose>-->
 	</model>
@@ -245,7 +245,7 @@
 		   <end_x>1.8</end_x>
 		   <end_y>-9</end_y>
 		   <end_z>0</end_z>
-		   <time>80</time>
+		   <time>100</time>
 	   </plugin>
    	</model>
    	
@@ -260,7 +260,7 @@
 		   <end_x>-3.75</end_x>
 		   <end_y>9</end_y>
 		   <end_z>0</end_z>
-		   <time>80</time>
+		   <time>100</time>
 	   </plugin>
    	</model>
    	
@@ -276,7 +276,7 @@
 		   <end_y>-1.7</end_y>
 		   <end_z>0</end_z>
 		   <yaw>-0.785</yaw>
-		   <time>10</time>
+		   <time>30</time>
 	   </plugin>
    	</model>
 	   
