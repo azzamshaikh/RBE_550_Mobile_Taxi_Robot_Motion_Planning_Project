@@ -28,6 +28,8 @@ class Node{
             bool operator()(const Node& n1, const Node& n2) const;
         };
 
+        void distance(const Node& goal);
+
     public:
         int x_, y_;
         double g_, h_;

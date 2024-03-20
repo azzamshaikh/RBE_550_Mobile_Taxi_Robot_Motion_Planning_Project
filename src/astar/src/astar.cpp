@@ -265,8 +265,8 @@ namespace A_Star_Planner {
                         continue;
                     }
 
-                // node_new.euclidean_distance(goal);
-                node_new.h_ = math::euclidean_distance(node_new,goal);
+                node_new.distance(goal);
+                //node_new.h_ = math::euclidean_distance(node_new,goal);
                 
                 openList.push(node_new);
             }

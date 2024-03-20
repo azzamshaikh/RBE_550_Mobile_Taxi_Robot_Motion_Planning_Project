@@ -55,6 +55,10 @@ bool Node::compare_coordinates::operator()(const Node& n1, const Node& n2) const
      return (n1.x_ == n2.x_) && (n1.y_ == n2.y_);
 };
 
+void Node::distance(const Node& goal){
+    h_ = std::hypot(x_ - goal.x_, y_ - goal.y_);
+};
+
 namespace math{
     
     double euclidean_distance(const Node &n1, const Node &n2)
