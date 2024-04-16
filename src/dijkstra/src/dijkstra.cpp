@@ -21,13 +21,15 @@ namespace Dijkstra_Planner {
     void Dijkstra::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros){
         if(!initialized_){
             costmap_ros_ = costmap_ros; // Initialize the costmap_ros_ attribute to the parameter
-            
+            costmap_ = costmap_ros_->getCostmap();   // Get the costmap_ from costmap_ros_
+            frame_id_ = costmap_ros_->getGlobalFrameID();
+
             // Initialize other planner parameters
             ros::NodeHandle private_nh("~/" + name);
+            plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan",1);
+            expand_pub_ = private_nh.advertise<nav_msgs::OccupancyGrid>("expand",1);
+            make_plan_srv = private_nh.advertiseService("make_plan", &Dijkstra::makePlanService, this);
 
-            costmap_ = costmap_ros_->getCostmap();   // Get the costmap_ from costmap_ros_
-
-            frame_id_ = costmap_ros_->getGlobalFrameID();
 
             originX = costmap_->getOriginX();
             originY = costmap_->getOriginY();
@@ -38,12 +40,6 @@ namespace Dijkstra_Planner {
             convert_offset = 0.0;
 
             mapSize = width*height;
-
-            plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan",1);
-
-            expand_pub_ = private_nh.advertise<nav_msgs::OccupancyGrid>("expand",1);
-
-            make_plan_srv = private_nh.advertiseService("make_plan", &Dijkstra::makePlanService, this);
 
             ROS_INFO("Dijkstra Global Planner initialized successfully.");
             initialized_ = true;
@@ -57,7 +53,7 @@ namespace Dijkstra_Planner {
                         std::vector<geometry_msgs::PoseStamped>& plan ){
         
         if (!initialized_){
-            ROS_ERROR("The planner has not been initialized, please call initialize() to use the planner");
+            ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
             return false;
         }
 
@@ -69,18 +65,17 @@ namespace Dijkstra_Planner {
 
         if (goal.header.frame_id != frame_id_)
         {
-            ROS_ERROR("This planner as configured will only accept goals in the %s frame, but a goal was sent in the %s frame.",
+            ROS_ERROR("The goal pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", 
                     frame_id_.c_str(), goal.header.frame_id.c_str());
             return false;
         }
 
         if (start.header.frame_id != frame_id_)
         {
-            ROS_ERROR("This planner as configured will only accept start pose in the %s frame, but a start pose was sent in the %s frame.",
+            ROS_ERROR("The start pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", 
                     frame_id_.c_str(), start.header.frame_id.c_str());
             return false;
         }
-
 
         // Convert the start and goal positions
         // ROS_INFO("Checking if start and goal poses are in the global costmap.");
@@ -88,14 +83,14 @@ namespace Dijkstra_Planner {
         double worldY = start.pose.position.y;
         double mapStartX, mapStartY, mapGoalX, mapGoalY;
         if(!world2Map(worldX,worldY,mapStartX, mapStartY)){
-            ROS_WARN("THE start pose is off the global costmap.");
+            ROS_WARN_THROTTLE(1.0, "The robot's start position is off the global costmap. Planning will always fail, are you sure the robot has been properly localized?");            
             return false;
         }
 
         worldX = goal.pose.position.x;
         worldY = goal.pose.position.y;
         if(!world2Map(worldX,worldY,mapGoalX, mapGoalY)){
-            ROS_WARN_THROTTLE(1.0,"The goal pose is off the global costmap.");
+            ROS_WARN_THROTTLE(1.0, "The goal sent to the navfn planner is off the global costmap. Planning will always fail to this goal.");
             return false;
         }
 
@@ -105,34 +100,28 @@ namespace Dijkstra_Planner {
         map2Grid(mapStartX,mapStartY,gridStartX, gridStartY);
         map2Grid(mapGoalX, mapGoalY,gridGoalX, gridGoalY);
 
-
         // ROS_INFO("Creating start and goal nodes.");
 
-        Node start_node(gridStartX,gridStartY,0,0,grid2Index(gridStartX,gridStartY),0);
-        Node goal_node(gridGoalX,gridGoalY,0,0,grid2Index(gridGoalX,gridGoalY),0);
-        
-        // outline map????
-        // outlineMap(costmap_->getCharMap());
+        Node start_node(gridStartX,gridStartY,0,grid2Index(gridStartX,gridStartY),0);
+        Node goal_node(gridGoalX,gridGoalY,0,grid2Index(gridGoalX,gridGoalY),0);
 
         // ROS_INFO("Creating path and expand vectors.");
 
         // calculate path
-        std::vector<Node> path;
-        std::vector<Node> expand;
-        bool path_found = false;
+        std::vector<Node> path, expand;
+        bool found_legal = false;
 
         // ROS_INFO("Running A*");
-        // planning
-        path_found = runDijkstra(costmap_->getCharMap(),start_node, goal_node, path, expand);
+        found_legal = runDijkstra(costmap_->getCharMap(),start_node, goal_node, path, expand);
 
-        if (path_found){
+        if (found_legal){
             if(getPlanFromPath(path, plan)){
                 geometry_msgs::PoseStamped goalCopy = goal;
                 goalCopy.header.stamp = ros::Time::now();
                 plan.push_back(goalCopy);
             }
             else{
-                ROS_ERROR("Failed to find path when a legal path is there. This shouldnt happen");
+                ROS_ERROR("Failed to get a plan from potential when a legal potential was found. This shouldn't happen.");
             }
         }
         else{
@@ -151,7 +140,8 @@ namespace Dijkstra_Planner {
         expand.clear();
 
         //open list and closed list
-        std::priority_queue<Node, std::vector<Node>, Node::compare_cost> openList;
+        auto comp = [](Node left, Node right) {return left.g_ > right.g_;};
+        std::priority_queue<Node, std::vector<Node>, decltype(comp)> openList(comp);
         std::unordered_map<int, Node> closedList;
 
         openList.push(start);
@@ -165,39 +155,54 @@ namespace Dijkstra_Planner {
             // if x&y position already visited, continue
             if (indexExistsInDict(closedList, current)){
                 continue;
+            }           
+            // else, add current to closed list and expand
+            else{
+                closedList[current.index_] = current;
+                expand.push_back(current);
             }
             
-            // else, add current to closed list and expand
-            closedList[current.index_] = current;
-            expand.push_back(current);
-            
             // if current is the goal goal, return
-            if(current == goal){
-                path = convertClosedListToPath(closedList,start,goal);
+            // if(current == goal){
+            if(goalCheck(current, goal)){
+                auto current = closedList.find(goal.index_);
+                while(!goalCheck(current->second, start)){
+                    path.emplace_back(current->second.x_,current->second.y_);
+                    auto it = closedList.find(current->second.parent_);
+                    if(it != closedList.end()){
+                        current = it;
+                    }
+                    else{
+                        return {};
+                    }
+                }
+                path.push_back(start);
                 return true;
             }
 
             // else, iterate through actions
             for (const auto& action: actions){
-                Node node_new = Node(current.x_ + action.get_x(), current.y_ + action.get_y(), current.g_ + action.get_cost());
-                node_new.index_ = grid2Index(node_new.x_, node_new.y_);
+                Node new_node = Node(current.x_ + action.get_x(),
+                                     current.y_ + action.get_y(),
+                                     current.g_ + action.get_cost());
+                new_node.index_ = grid2Index(new_node.x_, new_node.y_);
 
-                // if x&y position already visited, continue
-                if(indexExistsInDict(closedList, node_new)){
+                // if x&y position already visited or illegal node, continue
+                if(indexExistsInDict(closedList, new_node) || isIllegalNode(global_costmap,new_node,current)){
                     continue;
                 }
 
-                node_new.parent_ = current.index_;
-
-                if(isIllegalNode(global_costmap,node_new,current)){
-                    continue;
-                }
+                new_node.parent_ = current.index_;
                 
-                openList.push(node_new);
+                openList.push(new_node);
             }
             
         }
         return false;
+    }
+
+    bool Dijkstra::goalCheck(Node& node, const Node& goal){
+        return (node.x_ == goal.x_ && node.y_ == goal.y_) ? true : false;
     }
 
     bool Dijkstra::indexExistsInDict(std::unordered_map<int, Node>& closedList, Node &n){
@@ -206,24 +211,6 @@ namespace Dijkstra_Planner {
 
     bool Dijkstra::isIllegalNode(const unsigned char* global_costmap, Node &n, Node &current){
         return ((n.index_ < 0) || (n.index_ >= mapSize) || global_costmap[n.index_] >= lethal_cost_* factor_ && global_costmap[n.index_] >= global_costmap[current.index_]) ? true : false;
-    }
-
-    std::vector<Node> Dijkstra::convertClosedListToPath(std::unordered_map<int, Node>& closedList, const Node& start, 
-                                                   const Node& goal){
-        std::vector<Node> path;
-        auto current = closedList.find(goal.index_);
-        while(current->second != start){
-            path.emplace_back(current->second.x_,current->second.y_);
-            auto it = closedList.find(current->second.parent_);
-            if(it != closedList.end()){
-                current = it;
-            }
-            else{
-                return {};
-            }
-        }
-        path.push_back(start);
-        return path;
 
     }
 
@@ -334,22 +321,5 @@ namespace Dijkstra_Planner {
         // ROS_INFO("Computeing grid2index.");
         return x + width * y;
     }
-
-    void Dijkstra::outlineMap(unsigned char* costarr){
-        
-        unsigned char* pc = costarr;
-        for (int i = 0; i < width; i++)
-            *pc++ = costmap_2d::LETHAL_OBSTACLE;
-        pc = costarr + (height - 1) * width;
-        for (int i = 0; i < width; i++)
-            *pc++ = costmap_2d::LETHAL_OBSTACLE;
-        pc = costarr;
-        for (int i = 0; i < height; i++, pc += width)
-            *pc = costmap_2d::LETHAL_OBSTACLE;
-        pc = costarr + width - 1;
-        for (int i = 0; i < height; i++, pc += width)
-            *pc = costmap_2d::LETHAL_OBSTACLE;
-    }
-
- };
+};
 

@@ -15,17 +15,34 @@
 #include <tf/tf.h>
 #include <set>
 #include <nav_msgs/GetPlan.h>
-#include <node.hpp>
 
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
 
+#include <array>
+#include <vector>
+#include <map>
+
 using std::string;
 using std::vector;
 
 namespace Dijkstra_Planner {
+
+   class Node{
+      public:
+         Node(int x=0, int y=0, double g=0.0, int index=0, int parent= 0){
+               x_ = x;
+               y_ = y;
+               g_ = g;
+               index_ = index;
+               parent_ = parent;
+         }
+
+         int x_, y_, index_, parent_;
+         double g_;
+   };
 
    class Dijkstra : public nav_core::BaseGlobalPlanner {
       public:
@@ -42,24 +59,19 @@ namespace Dijkstra_Planner {
          
          // methods
          bool runDijkstra(const unsigned char* global_costmap,const Node& start, const Node& goal, std::vector<Node>& path, std::vector<Node>& expand);
+         bool goalCheck(Node &node, const Node &goal);
          bool indexExistsInDict(std::unordered_map<int, Node> &closedList, Node &n);
          bool isIllegalNode(const unsigned char *global_costmap, Node &n, Node &current);
-         vector<int> findPath(int startCell, int goalCell, float g_score[]);
-         vector<int> constructPath(int startCell, int goalCell, float g_score[]);
 
          bool world2Map(double worldX, double Worldy, double& mapX, double& mapY);
          void map2World(double mapX, double mapY, double& worldX, double& worldY);
          void map2Grid(double mapX, double mapY, int& gridX, int& gridY);
          int grid2Index(int x, int y);
 
-         void outlineMap(unsigned char* costarr);
-
          void publishExpand(std::vector<Node>& expand);
          void publishPlan(const std::vector<geometry_msgs::PoseStamped>& plan);
          bool makePlanService(nav_msgs::GetPlan::Request& req, nav_msgs::GetPlan::Response& resp);
          bool getPlanFromPath(std::vector<Node>& path, std::vector<geometry_msgs::PoseStamped>& plan);
-         std::vector<Node> convertClosedListToPath(std::unordered_map<int, Node> &closedList, const Node &start,
-                                                   const Node &goal);
 
       private:
 
@@ -127,6 +139,5 @@ namespace Dijkstra_Planner {
 
    };
 
-      
 };
 #endif
