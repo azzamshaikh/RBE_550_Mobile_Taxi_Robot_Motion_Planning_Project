@@ -163,14 +163,14 @@ namespace Dijkstra_Planner {
             }
             
             // if current is the goal goal, return
-            // if(current == goal){
             if(goalCheck(current, goal)){
                 auto current = closedList.find(goal.index_);
                 while(!goalCheck(current->second, start)){
                     path.emplace_back(current->second.x_,current->second.y_);
-                    auto it = closedList.find(current->second.parent_);
-                    if(it != closedList.end()){
-                        current = it;
+                    int key = current->second.parent_; // get value from dict and get its parent
+                    Node next = closedList.at(key);
+                    if(indexExistsInDict(closedList, next)){
+                        current = closedList.find(key);
                     }
                     else{
                         return {};
