@@ -8,31 +8,26 @@
 
 class Node{
     public:
-        Node(int x=0, int y=0, double g=0.0, double h=0.0, int id=0, int parentID= 0);
-
-        Node operator+(const Node& n) const;
-
-        Node operator-(const Node& n) const;
+        Node(int x=0, int y=0, double g=0.0, double h=0.0, int index=0, int parent= 0){
+            x_ = x;
+            y_ = y;
+            g_ = g;
+            h_ = h;
+            index_ = index;
+            parent_ = parent;
+        }
 
         bool operator==(const Node& n) const;
 
         bool operator!=(const Node& n) const;
 
-        static std::vector<Node> getMotion();
-
         struct compare_cost{
             bool operator()(const Node& n1, const Node& n2) const;
         };
 
-        struct compare_coordinates{
-            bool operator()(const Node& n1, const Node& n2) const;
-        };
-
     public:
-        int x_, y_;
+        int x_, y_, index_, parent_;
         double g_, h_;
-        int id_, parentID_;
-
 };
 
 namespace math {

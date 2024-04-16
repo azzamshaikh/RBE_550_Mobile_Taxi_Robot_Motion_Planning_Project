@@ -25,9 +25,6 @@
 using std::string;
 using std::vector;
 
-
-
-
 namespace Dijkstra_Planner {
 
    class Dijkstra : public nav_core::BaseGlobalPlanner {
@@ -43,14 +40,13 @@ namespace Dijkstra_Planner {
                      std::vector<geometry_msgs::PoseStamped>& plan
                      );
          
-
          // methods
-         // vector<int> runAStar(int startCell,int goalCell); original implemntation
          bool runDijkstra(const unsigned char* global_costmap,const Node& start, const Node& goal, std::vector<Node>& path, std::vector<Node>& expand);
-         vector<int> findPath(int startCell,int goalCell,float g_score[]);
+         bool indexExistsInDict(std::unordered_map<int, Node> &closedList, Node &n);
+         bool isIllegalNode(const unsigned char *global_costmap, Node &n, Node &current);
+         vector<int> findPath(int startCell, int goalCell, float g_score[]);
          vector<int> constructPath(int startCell, int goalCell, float g_score[]);
 
-         
          bool world2Map(double worldX, double Worldy, double& mapX, double& mapY);
          void map2World(double mapX, double mapY, double& worldX, double& worldY);
          void map2Grid(double mapX, double mapY, int& gridX, int& gridY);
@@ -62,30 +58,9 @@ namespace Dijkstra_Planner {
          void publishPlan(const std::vector<geometry_msgs::PoseStamped>& plan);
          bool makePlanService(nav_msgs::GetPlan::Request& req, nav_msgs::GetPlan::Response& resp);
          bool getPlanFromPath(std::vector<Node>& path, std::vector<geometry_msgs::PoseStamped>& plan);
-         std::vector<Node> convertClosedListToPath(std::unordered_map<int, Node>& closedList, const Node& start, 
-                                                   const Node& goal);
+         std::vector<Node> convertClosedListToPath(std::unordered_map<int, Node> &closedList, const Node &start,
+                                                   const Node &goal);
 
-         
-         
-         //void getMapCoordinates(double& x, double& y);
-         //int convertToCellIndex(float x, float y);
-         //void convertToCoordinate(int index, float& x, float& y);
-         //bool isCellInBounds(float x, float y);
-         //bool isStartAndGoalValid(int startCell, int goalCell);
-         //vector<int> findFreeNeighborCells(int cellIndex);
-         //void addNeighbor(std::multiset<Node> &openList, int neighborCell, int goalCell, float g_score[]);
-         //float calculatedHCost(int startCell,int goalCell);
-         //float getMoveCost(int cell1, int cell2);
-         //float getMoveCost(int i1, int j1, int i2, int j2);
-
-
-         //int getCellIndex(int i, int j);
-         //int getCellRowID(int index);
-         //int getCellColID(int index);
-         //bool isFree(int cellIndex);
-         //bool isFree(int i, int j);
-
-         
       private:
 
          bool initialized_;
@@ -110,10 +85,48 @@ namespace Dijkstra_Planner {
          unsigned char lethal_cost_ = 253, neurtral_cost_ = 50;
          double factor_ = 0.25;
 
+   };
 
+   class Action{
+      private:
+         int x_;
+         int y_;
+         double cost_;
+      
+      public:
+         Action(int x = 0, int y = 0, double cost = 0.0){
+            x_ = x;
+            y_ = y;
+            cost_ = cost;
+         }
 
+         int get_x() const{
+            return x_;
+         }
+        
+         int get_y() const{
+            return y_;
+         }
+        
+         double get_cost() const{
+            return cost_;
+         }
+
+         static vector<Action> getActions(){
+            return {
+               Action(0, 1, 1),
+               Action(1, 0, 1),
+               Action(0, -1, 1),
+               Action(-1, 0, 1),
+               Action(1, 1, std::sqrt(2)),
+               Action(1, -1, std::sqrt(2)),
+               Action(-1, 1, std::sqrt(2)),
+               Action(-1, -1, std::sqrt(2)),
+            };
+         }
 
    };
+
       
 };
 #endif
