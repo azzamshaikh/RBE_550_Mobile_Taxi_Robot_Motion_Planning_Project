@@ -215,7 +215,9 @@ namespace A_Star_Planner {
     }
 
     bool AStar::isIllegalNode(const unsigned char* global_costmap, Node &n, Node &current){
-        return ((n.index_ < 0) || (n.index_ >= mapSize) || global_costmap[n.index_] >= lethal_cost_* factor_ && global_costmap[n.index_] >= global_costmap[current.index_]) ? true : false;
+        return ((n.index_ < 0) || 
+                (n.index_ >= mapSize) || 
+                global_costmap[n.index_] >= lethal_cost_* factor_ && global_costmap[n.index_] >= global_costmap[current.index_]) ? true : false;
     }
 
     bool AStar::getPlanFromPath(std::vector<Node>& path, std::vector<geometry_msgs::PoseStamped>& plan){

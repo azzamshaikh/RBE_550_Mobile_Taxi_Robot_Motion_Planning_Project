@@ -94,8 +94,8 @@ namespace Dijkstra_Planner {
          ros::Publisher expand_pub_; // node explorer publisher
          ros::ServiceServer make_plan_srv; // planning service
 
-         unsigned char lethal_cost_ = 253, neurtral_cost_ = 50;
-         double factor_ = 0.25;
+         unsigned char lethal_cost_ = 253;
+         double factor_ = 0.1;
 
    };
 
