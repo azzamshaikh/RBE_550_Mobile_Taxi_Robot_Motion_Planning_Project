@@ -57,6 +57,12 @@ To run the A* planner, run the following command:
 roslaunch turtlebot3_gazebo astar_navigation.launch
 ```
 
+To runt he RRT planner, run the following command:
+
+```
+roslaunch turtlebot3_gazebo rrt_navigation.launch
+```
+
 To run the default planner, run the following command:
 
 ```
