@@ -18,7 +18,7 @@
 #include <tf/tf.h>
 #include <set>
 #include <nav_msgs/GetPlan.h>
-#include <node.hpp>
+//#include <node.hpp>
 #include <random>
 
 #include <queue>
@@ -29,7 +29,22 @@
 using std::string;
 using std::vector;
 
+
 namespace RRT_Planner {
+
+   class Node{
+    public:
+        int x_, y_, index_, parent_;
+        double g_;
+
+        Node(int x=0, int y=0, double g=0.0, int index=0, int parent= 0){
+            x_ = x;
+            y_ = y;
+            g_ = g;
+            index_ = index;
+            parent_ = parent;
+        }
+   };
 
    class RRT : public nav_core::BaseGlobalPlanner {
       public:
@@ -50,13 +65,17 @@ namespace RRT_Planner {
          bool runRRT(const unsigned char* global_costmap,const Node& start, const Node& goal, std::vector<Node>& path, std::vector<Node>& expand);
          vector<int> findPath(int startCell,int goalCell,float g_score[]);
          vector<int> constructPath(int startCell, int goalCell, float g_score[]);
-
-         Node sample(int & iter,const Node& goal);
-         Node findNearestNode(std::unordered_map<int, Node> sampleList, const Node& node);
-         bool collisionCheck(const Node& n1, const Node& n2);
-         bool goalFound(const Node& node);
-
          
+         bool goalCheck(Node& node, const Node& goal);
+
+         Node sample();
+         bool isIllegalSample(const Node &sample, const unsigned char *global_costmap);
+         Node findNearestNode(std::unordered_map<int, Node> sampleList, const Node &sampled_node, const unsigned char *global_costmap);
+         bool collisionCheck(const Node& n1, const Node& n2,const unsigned char* global_costmap);
+         bool goalFound(const Node& node, const Node& goal, const unsigned char* global_costmap);
+
+         bool indexExistsInDict(std::unordered_map<int, Node> &list, Node &n);
+
          bool world2Map(double worldX, double Worldy, double& mapX, double& mapY);
          void map2World(double mapX, double mapY, double& worldX, double& worldY);
          void map2Grid(double mapX, double mapY, int& gridX, int& gridY);
@@ -110,9 +129,6 @@ namespace RRT_Planner {
          Node start_copy;
          Node goal_copy;
 
-
-         
-
          int width;     // costmap size
          int height;    // costmap size
          int mapSize;   // pixel total
@@ -121,15 +137,21 @@ namespace RRT_Planner {
          ros::Publisher expand_pub_; // node explorer publisher
          ros::ServiceServer make_plan_srv; // planning service
 
-         unsigned char lethal_cost_ = 253, neurtral_cost_ = 50;
+         unsigned char lethal_cost_ = 253;
          double factor_ = 0.25;
-
-
-
-
-
 
    };
       
 };
+
+namespace math {
+    double euclidean_distance(const RRT_Planner::Node& n1, const RRT_Planner::Node& n2){
+        return std::hypot(n1.x_ - n2.x_, n1.y_ - n2.y_);
+    }
+    double angle(const RRT_Planner::Node& n1, const RRT_Planner::Node& n2){
+        return atan2(n2.y_ - n1.y_, n2.x_ - n1.x_);
+    }
+};
+
+
 #endif

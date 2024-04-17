@@ -127,8 +127,7 @@ include_directories(
 #   src/${PROJECT_NAME}/astar.cpp
 # )
 add_library(rrt
-   src/rrt.cpp
-   src/node.cpp)	
+   src/rrt.cpp)	
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
