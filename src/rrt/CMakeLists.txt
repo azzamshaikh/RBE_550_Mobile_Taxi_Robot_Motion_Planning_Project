@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(dijkstra)
+project(rrt)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -126,8 +126,8 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/astar.cpp
 # )
-add_library(dijkstra
-   src/dijkstra.cpp)	
+add_library(rrt
+   src/rrt.cpp)	
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
