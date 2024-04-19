@@ -150,10 +150,8 @@ namespace RRT_Planner {
         expand.clear();
         sampleList.clear();    
 
-        start_copy = start;
         goal_copy = goal;
 
-        //sampleList.insert(std::make_pair(start.id_, start));
         sampleList[start.index_] = start;
         expand.push_back(start);
 
@@ -161,7 +159,7 @@ namespace RRT_Planner {
         while(iter < 3000){
             
             // ROS_INFO("inside while loop on iteration %i",iter);
-            Node sample_node = sample();
+            Node sample_node = sample(goal_copy);
 
             if(isIllegalSample(sample_node,global_costmap) || indexExistsInDict(sampleList,sample_node)){
                 continue;
@@ -204,16 +202,23 @@ namespace RRT_Planner {
         return (node.x_ == goal.x_ && node.y_ == goal.y_) ? true : false;
     }
 
-    Node RRT::sample(){
+    Node RRT::sample(Node& goal){
         // ROS_INFO("INSIDE SAMPLING");
         std::random_device rd; // obtain a random number from hardware
         std::mt19937 gen(rd()); // seed the generator
         std::uniform_int_distribution<int> distr(0, mapSize - 1); // define the range
         std::uniform_int_distribution<int> sendGoal(0,10);
-        const int id = distr(gen);
+        const int index = distr(gen);
         int x, y;
-        index2Grid(id, x, y);
-        return Node(x, y, 0, id, 0);
+        index2Grid(index, x, y);
+        // if(sendGoal(gen) < 2){ //causing issues with multple goals
+        //     return Node(goal.x_, goal.y_, 0, goal.index_, 0);
+        // }
+        // else{
+        //     return Node(x, y, 0, index, 0);
+        // }
+        return Node(x, y, 0, index, 0);
+        
     }
 
     bool RRT::isIllegalSample(const Node& sample, const unsigned char* global_costmap){

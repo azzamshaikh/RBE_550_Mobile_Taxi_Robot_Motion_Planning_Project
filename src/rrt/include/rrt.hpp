@@ -18,7 +18,6 @@
 #include <tf/tf.h>
 #include <set>
 #include <nav_msgs/GetPlan.h>
-//#include <node.hpp>
 #include <random>
 
 #include <queue>
@@ -68,7 +67,7 @@ namespace RRT_Planner {
          
          bool goalCheck(Node& node, const Node& goal);
 
-         Node sample();
+         Node sample(Node& goal);
          bool isIllegalSample(const Node &sample, const unsigned char *global_costmap);
          Node findNearestNode(std::unordered_map<int, Node> sampleList, const Node &sampled_node, const unsigned char *global_costmap);
          bool collisionCheck(const Node& n1, const Node& n2,const unsigned char* global_costmap);
@@ -90,26 +89,6 @@ namespace RRT_Planner {
          bool getPlanFromPath(std::vector<Node>& path, std::vector<geometry_msgs::PoseStamped>& plan);
          std::vector<Node> convertClosedListToPath(std::unordered_map<int, Node>& closedList, const Node& start, 
                                                    const Node& goal);
-
-         
-         
-         //void getMapCoordinates(double& x, double& y);
-         //int convertToCellIndex(float x, float y);
-         //void convertToCoordinate(int index, float& x, float& y);
-         //bool isCellInBounds(float x, float y);
-         //bool isStartAndGoalValid(int startCell, int goalCell);
-         //vector<int> findFreeNeighborCells(int cellIndex);
-         //void addNeighbor(std::multiset<Node> &openList, int neighborCell, int goalCell, float g_score[]);
-         //float calculatedHCost(int startCell,int goalCell);
-         //float getMoveCost(int cell1, int cell2);
-         //float getMoveCost(int i1, int j1, int i2, int j2);
-
-
-         //int getCellIndex(int i, int j);
-         //int getCellRowID(int index);
-         //int getCellColID(int index);
-         //bool isFree(int cellIndex);
-         //bool isFree(int i, int j);
 
          
       private:
