@@ -27,7 +27,7 @@ namespace PRM_Planner {
             ros::NodeHandle private_nh("~/" + name);
             plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan",1);
             expand_pub_ = private_nh.advertise<nav_msgs::OccupancyGrid>("expand",1);
-            //make_plan_srv = private_nh.advertiseService("make_plan", &PRM::makePlanService, this);
+            make_plan_srv = private_nh.advertiseService("make_plan", &PRM::makePlanService, this);
 
 
             originX = costmap_->getOriginX();
@@ -135,164 +135,241 @@ namespace PRM_Planner {
     }
 
     bool PRM::runPRM(const unsigned char* global_costmap, const Node& start, const Node& goal, std::vector<Node>& path, std::vector<Node>& expand) {
-    path.clear();
-    expand.clear();
+        path.clear();
+        expand.clear();
 
-    // Parameters for PRM algorithm
-    const int num_samples = 100; // Number of random samples
-    const int num_neighbors = 5; // Number of nearest neighbors to consider
+        // Parameters for PRM algorithm
+        const int num_samples = 100; // Number of random samples
+        const int num_neighbors = 5; // Number of nearest neighbors to consider
 
-    // Generate random samples in the free space
-    std::vector<Node> samples;
-    generateRandomSamples(global_costmap, num_samples, samples);
+        // Generate random samples in the free space
+        std::vector<Node> samples;
+        generateRandomSamples(global_costmap, num_samples, samples);
 
-    // Connect the samples to create the roadmap
-    std::unordered_map<int, std::vector<int>> roadmap;
-    constructRoadmap(global_costmap, samples, num_neighbors, roadmap);
+        // Connect the samples to create the roadmap
+        std::unordered_map<int, std::vector<int>> roadmap;
+        constructRoadmap(global_costmap, samples, num_neighbors, roadmap);
 
-    // Find the nearest nodes to the start and goal positions
-    int start_index = findNearestNode(start, samples);
-    int goal_index = findNearestNode(goal, samples);
+        // Find the nearest nodes to the start and goal positions
+        int start_index = findNearestNode(start, samples);
+        int goal_index = findNearestNode(goal, samples);
 
-    // Check if start and goal nodes are valid
-    if (start_index == -1 || goal_index == -1) {
-        ROS_ERROR("Invalid start or goal node.");
-        return false;
+        // Check if start and goal nodes are valid
+        if (start_index == -1 || goal_index == -1) {
+            ROS_ERROR("Invalid start or goal node.");
+            return false;
+        }
+
+        // Find a path using A* algorithm on the roadmap
+        bool found_path = searchPath(start_index, goal_index, roadmap, samples, path, expand);
+
+        return found_path;
     }
 
-    // Find a path using A* algorithm on the roadmap
-    bool found_path = searchPath(start_index, goal_index, roadmap, samples, path, expand);
+    void PRM::generateRandomSamples(const unsigned char* global_costmap, int num_samples, std::vector<Node>& samples) {
+        // Get the dimensions of the costmap
+        int width = costmap_->getSizeInCellsX();
+        int height = costmap_->getSizeInCellsY();
 
-    return found_path;
-}
+        // Generate random samples within the bounds of the costmap
+        for (int i = 0; i < num_samples; ++i) {
+            int x = rand() % width;
+            int y = rand() % height;
 
-void PRM::generateRandomSamples(const unsigned char* global_costmap, int num_samples, std::vector<Node>& samples) {
-    // Get the dimensions of the costmap
-    int width = costmap_->getSizeInCellsX();
-    int height = costmap_->getSizeInCellsY();
-
-    // Generate random samples within the bounds of the costmap
-    for (int i = 0; i < num_samples; ++i) {
-        int x = rand() % width;
-        int y = rand() % height;
-
-        // Check if the sample is in free space
-        if (global_costmap[x + y * width] == 0) {
-            samples.emplace_back(x, y);
+            // Check if the sample is in free space
+            if (global_costmap[x + y * width] == 0) {
+                samples.emplace_back(x, y);
+            }
         }
     }
-}
 
-void PRM::constructRoadmap(const unsigned char* global_costmap, const std::vector<Node>& samples, int num_neighbors, std::unordered_map<int, std::vector<int>>& roadmap) {
-    // For each sample, find its nearest neighbors and connect them if the path is obstacle-free
-    for (size_t i = 0; i < samples.size(); ++i) {
-        std::vector<int> neighbors;
-        for (size_t j = 0; j < samples.size(); ++j) {
-            if (i != j) {
-                double dist = euclideanDistance(samples[i], samples[j]);
-                // Check if the distance is within the specified range and there is a clear path between the nodes
-                if (dist <= max_distance && isClearPath(global_costmap, samples[i], samples[j])) {
-                    neighbors.push_back(j);
+    void PRM::constructRoadmap(const unsigned char* global_costmap, const std::vector<Node>& samples, int num_neighbors, std::unordered_map<int, std::vector<int>>& roadmap) {
+        // For each sample, find its nearest neighbors and connect them if the path is obstacle-free
+        for (size_t i = 0; i < samples.size(); ++i) {
+            std::vector<int> neighbors;
+            for (size_t j = 0; j < samples.size(); ++j) {
+                if (i != j) {
+                    double dist = euclideanDistance(samples[i], samples[j]);
+                    // Check if the distance is within the specified range and there is a clear path between the nodes
+                    if (dist <= max_distance && isClearPath(global_costmap, samples[i], samples[j])) {
+                        neighbors.push_back(j);
+                    }
+                }
+            }
+            roadmap[i] = neighbors;
+        }
+    }
+
+    int PRM::findNearestNode(const Node& query, const std::vector<Node>& samples) {
+        int nearest_index = -1;
+        double min_distance = std::numeric_limits<double>::max();
+
+        // Find the index of the nearest node among the samples
+        for (size_t i = 0; i < samples.size(); ++i) {
+            double dist = euclideanDistance(query, samples[i]);
+            if (dist < min_distance) {
+                min_distance = dist;
+                nearest_index = i;
+            }
+        }
+
+        return nearest_index;
+    }
+
+    bool PRM::searchPath(int start_index, int goal_index, const std::unordered_map<int, std::vector<int>>& roadmap, const std::vector<Node>& samples, std::vector<Node>& path, std::vector<Node>& expand) {
+        std::unordered_map<int, double> cost_so_far;
+        std::unordered_map<int, int> came_from;
+        std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> frontier;
+
+        frontier.push(std::make_pair(start_index, 0));
+        cost_so_far[start_index] = 0;
+
+        while (!frontier.empty()) {
+            int current_index = frontier.top().first;
+            frontier.pop();
+
+            if (current_index == goal_index) {
+                // Reconstruct the path
+                int current = goal_index;
+                while (current != start_index) {
+                    path.push_back(samples[current]);
+                    current = came_from[current];
+                }
+                path.push_back(samples[start_index]);
+                std::reverse(path.begin(), path.end());
+                return true;
+            }
+
+            for (int next_index : roadmap.at(current_index)) {
+                double new_cost = cost_so_far[current_index] + euclideanDistance(samples[current_index], samples[next_index]);
+                if (!cost_so_far.count(next_index) || new_cost < cost_so_far[next_index]) {
+                    cost_so_far[next_index] = new_cost;
+                    double priority = new_cost + euclideanDistance(samples[next_index], samples[goal_index]);
+                    frontier.push(std::make_pair(next_index, priority));
+                    came_from[next_index] = current_index;
                 }
             }
         }
-        roadmap[i] = neighbors;
-    }
-}
 
-int PRM::findNearestNode(const Node& query, const std::vector<Node>& samples) {
-    int nearest_index = -1;
-    double min_distance = std::numeric_limits<double>::max();
-
-    // Find the index of the nearest node among the samples
-    for (size_t i = 0; i < samples.size(); ++i) {
-        double dist = euclideanDistance(query, samples[i]);
-        if (dist < min_distance) {
-            min_distance = dist;
-            nearest_index = i;
-        }
+        return false; // No path found
     }
 
-    return nearest_index;
-}
-
-bool PRM::searchPath(int start_index, int goal_index, const std::unordered_map<int, std::vector<int>>& roadmap, const std::vector<Node>& samples, std::vector<Node>& path, std::vector<Node>& expand) {
-    std::unordered_map<int, double> cost_so_far;
-    std::unordered_map<int, int> came_from;
-    std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> frontier;
-
-    frontier.push(std::make_pair(start_index, 0));
-    cost_so_far[start_index] = 0;
-
-    while (!frontier.empty()) {
-        int current_index = frontier.top().first;
-        frontier.pop();
-
-        if (current_index == goal_index) {
-            // Reconstruct the path
-            int current = goal_index;
-            while (current != start_index) {
-                path.push_back(samples[current]);
-                current = came_from[current];
-            }
-            path.push_back(samples[start_index]);
-            std::reverse(path.begin(), path.end());
-            return true;
-        }
-
-        for (int next_index : roadmap.at(current_index)) {
-            double new_cost = cost_so_far[current_index] + euclideanDistance(samples[current_index], samples[next_index]);
-            if (!cost_so_far.count(next_index) || new_cost < cost_so_far[next_index]) {
-                cost_so_far[next_index] = new_cost;
-                double priority = new_cost + euclideanDistance(samples[next_index], samples[goal_index]);
-                frontier.push(std::make_pair(next_index, priority));
-                came_from[next_index] = current_index;
-            }
-        }
-    }
-
-    return false; // No path found
-}
-
-bool PRM::worldToMap(double worldX, double worldY, unsigned int& mapX, unsigned int& mapY){
-        if (worldX < originX || worldY < originY){
+    bool PRM::getPlanFromPath(std::vector<Node>& path, std::vector<geometry_msgs::PoseStamped>& plan){
+        if(!initialized_){
+            ROS_ERROR("This planner has not been initialized.");
             return false;
         }
+        ros::Time planTime = ros::Time::now();
+        plan.clear();
 
-        mapX = (worldX-originX) / resolution - convert_offset; 
-        mapY = (worldY-originY) / resolution - convert_offset; 
-        if (mapX < width && mapY < height){
-            return true;
+        for (int i = path.size() - 1; i >=0; i--){
+            double worldX, worldY;
+            map2World((double)path[i].x_, (double)path[i].y_, worldX, worldY);
+            geometry_msgs::PoseStamped pose;
+            pose.header.stamp = ros::Time::now();
+            pose.header.frame_id = frame_id_;
+            pose.pose.position.x = worldX;
+            pose.pose.position.y = worldY;
+            pose.pose.position.z = 0.0;
+            pose.pose.orientation.x = 0.0;
+            pose.pose.orientation.y = 0.0;
+            pose.pose.orientation.z = 0.0;
+            pose.pose.orientation.w = 1.0;
+            plan.push_back(pose);
         }
-        return false;
+
+        return !plan.empty();
 
     }
-double PRM::euclideanDistance(const Node& node1, const Node& node2) {
-    double dx = node1.x_ - node2.x_;
-    double dy = node1.y_ - node2.y_;
-    return sqrt(dx * dx + dy * dy);
-}
 
-bool PRM::isClearPath(const unsigned char* global_costmap, const Node& node1, const Node& node2) {
-    int x0 = node1.x_, y0 = node1.y_;
-    int x1 = node2.x_, y1 = node2.y_;
+    void PRM::publishExpand(std::vector<Node>& expand){
+        ROS_DEBUG("Expand zone size: %1ld", expand.size());
 
-    int dx = abs(x1 - x0), dy = abs(y1 - y0);
-    int sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
-    int err = (dx > dy ? dx : -dy) / 2, e2;
+        nav_msgs::OccupancyGrid grid;
 
-    while (x0 != x1 || y0 != y1) {
-        if (global_costmap[x0 + y0 * width] != 0) {
+        // build expand
+        grid.header.frame_id = frame_id_;
+        grid.header.stamp = ros::Time::now();
+        grid.info.resolution = resolution;
+        grid.info.width = width;
+        grid.info.height = height;
+
+        double worldX, worldY;
+        costmap_->mapToWorld(0,0,worldX,worldY);
+        grid.info.origin.position.x = worldX - resolution/2;
+        grid.info.origin.position.y = worldY - resolution/2;
+        grid.info.origin.position.z = 0.0;
+        grid.info.origin.orientation.w = 1.0;
+        grid.data.resize(width*height);
+
+        for(unsigned int i = 0; i < grid.data.size(); i++){
+            grid.data[i] = 0;
+        }
+        for(unsigned int i = 0; i < expand.size();i++){
+            grid.data[expand[i].index_] = 50;
+        }
+        expand_pub_.publish(grid);
+    }
+
+    void PRM::publishPlan(const std::vector<geometry_msgs::PoseStamped>& plan){
+        if(!initialized_){
+            ROS_ERROR("This planner has not been initialized.");
+            return;
+        }
+        nav_msgs::Path gui_plan;
+        gui_plan.poses.resize(plan.size());
+        gui_plan.header.frame_id = frame_id_;
+        gui_plan.header.stamp = ros::Time::now();
+        for (unsigned int i = 0; i < plan.size(); i++){
+            gui_plan.poses[i] = plan[i];
+        }
+        plan_pub_.publish(gui_plan);
+    }
+
+    bool PRM::makePlanService(nav_msgs::GetPlan::Request& req, nav_msgs::GetPlan::Response& resp){
+        makePlan(req.start, req.goal, resp.plan.poses);
+        resp.plan.header.stamp = ros::Time::now();
+        resp.plan.header.frame_id = frame_id_;
+
+        return true;
+    }
+
+    bool PRM::worldToMap(double worldX, double worldY, unsigned int& mapX, unsigned int& mapY){
+            if (worldX < originX || worldY < originY){
+                return false;
+            }
+
+            mapX = (worldX-originX) / resolution - convert_offset; 
+            mapY = (worldY-originY) / resolution - convert_offset; 
+            if (mapX < width && mapY < height){
+                return true;
+            }
             return false;
+
         }
-        e2 = err;
-        if (e2 > -dx) { err -= dy; x0 += sx; }
-        if (e2 < dy) { err += dx; y0 += sy; }
+    double PRM::euclideanDistance(const Node& node1, const Node& node2) {
+        double dx = node1.x_ - node2.x_;
+        double dy = node1.y_ - node2.y_;
+        return sqrt(dx * dx + dy * dy);
     }
-    return true;
-}
 
+    bool PRM::isClearPath(const unsigned char* global_costmap, const Node& node1, const Node& node2) {
+        int x0 = node1.x_, y0 = node1.y_;
+        int x1 = node2.x_, y1 = node2.y_;
 
+        int dx = abs(x1 - x0), dy = abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+        int err = (dx > dy ? dx : -dy) / 2, e2;
 
-    
+        while (x0 != x1 || y0 != y1) {
+            if (global_costmap[x0 + y0 * width] != 0) {
+                return false;
+            }
+            e2 = err;
+            if (e2 > -dx) { err -= dy; x0 += sx; }
+            if (e2 < dy) { err += dx; y0 += sy; }
+        }
+        return true;
+    }
+
 };
