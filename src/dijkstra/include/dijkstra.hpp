@@ -95,7 +95,7 @@ namespace Dijkstra_Planner {
          ros::ServiceServer make_plan_srv; // planning service
 
          unsigned char lethal_cost_ = 253;
-         double factor_ = 0.1;
+         double factor_ = 0.5;
 
    };
 

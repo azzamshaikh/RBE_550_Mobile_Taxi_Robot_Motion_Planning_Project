@@ -45,7 +45,7 @@ class TaxiService{
       goal_pub = nh->advertise<std_msgs::Bool>("reached_goal", 10);
       
       struct Site siteA = { {0, 2.5, 1.0}, "Site A"};   
-      struct Site siteB = {{ 5.8, 1.8, 0.0}, "Site B"};
+      struct Site siteB = {{ 5.8, 1.8, 1.0}, "Site B"};
       struct Site siteC = {{3.6, -4.5, 1.0}, "Site C"};
       struct Site siteD = {{0.5, -7, 1.0}, "Site D"};
       struct Site siteE = {{-5.8, 2.3, 1.0}, "Site E"};
