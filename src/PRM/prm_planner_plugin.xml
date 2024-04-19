@@ -1,0 +1,5 @@
+ <library path="lib/libPRM">
+  <class name="PRM_Planner/PRM" type="PRM_Planner::PRM" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>PRM Global Planner Plugin.</description>
+  </class>
+ </library>
