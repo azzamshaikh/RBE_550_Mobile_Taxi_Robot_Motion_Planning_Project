@@ -63,6 +63,12 @@ To run the RRT planner, run the following command:
 roslaunch turtlebot3_gazebo rrt_navigation.launch
 ```
 
+To run the PRM planner, run the following command:
+
+```
+roslaunch turtlebot3_gazebo PRM_navigation.launch
+```
+
 To run the default planner, run the following command:
 
 ```
