@@ -1,4 +1,12 @@
-# RBE 550: Mobile Taxi Robot Motion Planning Project
+# RBE 550: Waste Taxi Mobile Robot Motion Planning Project
+
+This repository contains the code developed for the RBE 550 group project. The project focuses on the development of robot motion planning algorithms for mobile robot to taxi waste in a warehouse.
+
+A full write up of the project is available in the `docs` folder.
+
+## Team Members
+
+Azzam Shaikh, Sidhant Karamchandani, and Tamir Lieber 
 
 ## Dependencies
 
@@ -84,3 +92,21 @@ In a new terminal, source your space (and add the waffle_pi model command if it 
 ```
 roslaunch taxi_service taxi_service.launch
 ```
+
+## Demonstrations
+
+### Dijkstra Planner
+
+![](./docs/media/dijkstra_demo.gif)
+
+### A* Planner
+
+![](./docs/media/astar_demo.gif)
+
+### RRT Planner
+
+![](./docs/media/rrt_demo.gif)
+
+### PRM Planner
+
+![](./docs/media/prm_demo.gif)
