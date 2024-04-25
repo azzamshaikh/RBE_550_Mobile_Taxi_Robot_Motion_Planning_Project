@@ -1,6 +1,6 @@
 # RBE 550: Waste Taxi Mobile Robot Motion Planning Project
 
-This repository contains the code developed for the RBE 550 group project. The project focuses on the development of robot motion planning algorithms for mobile robot to taxi waste in a warehouse.
+This repository contains the code developed for the RBE 550 group project. The project focuses on the development of motion planning algorithms for a mobile robot to taxi waste in a warehouse.
 
 A full write up of the project is available in the `docs` folder.
 
